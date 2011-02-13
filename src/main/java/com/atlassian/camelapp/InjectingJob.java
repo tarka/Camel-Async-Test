@@ -14,7 +14,7 @@ public class InjectingJob
 
     @EndpointInject ProducerTemplate inputq;
 
-    Integer count = 0;
+    Integer count = 1;
 
     public void doIt() {
         if (count > 15)

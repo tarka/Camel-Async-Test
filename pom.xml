@@ -10,7 +10,7 @@
     <properties>
         <spring.version>3.0.5.RELEASE</spring.version>
         <activemq.version>5.4.2</activemq.version>
-        <camel.version>2.5.0</camel.version>
+        <camel.version>2.6.0</camel.version>
     </properties>
 
     <build>
