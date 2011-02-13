@@ -1,0 +1,10 @@
+*~
+*.pyc
+*.class
+*.apk
+*.ap_
+*.dex
+*.iml
+*.iws
+*.ipr
+/target
