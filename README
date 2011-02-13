@@ -1,0 +1,26 @@
+
+Camel Async Test
+----------------
+
+This small proof-of-concept app tests the asynchronous redelivery
+feature of Camel 2.4+.  
+
+To run:
+
+   mvn jetty:run
+
+What it does:
+
+ * Starts embedded ActiveMQ broker, backed by a memory-only DB
+ * Creates two Camel JMS queues: 'inputq' and 'expiredMessages' 
+ * Expired messages routes to a simple logging bean
+ * There is a quartz job that injects 16 messages, 1 second apart
+ * 'inputq' is routed to a logging bean that throw errors a certain points:
+ ** After 5 messages it throws a PermanentFailureException
+ ** After 10 messages it throws a TemporaryFailureException
+ * The error handler is configured as follows:
+ ** PermanentFailureExceptions are immediately sent to the expired queue
+ ** TemporaryFailureExceptions are retried with the following parameters:
+ *** 3 retries
+ *** 10 second delay between retries
+ *** Asynchronous retries

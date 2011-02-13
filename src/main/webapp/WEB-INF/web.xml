@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<!-- Order is:
+<!ELEMENT web-app (icon?, display-name?, description?, distributable?,
+context-param*, filter*, filter-mapping*, listener*, servlet*,
+servlet-mapping*, session-config?, mime-mapping*, welcome-file-list?,
+error-page*, taglib*, resource-env-ref*, resource-ref*, security-constraint*,
+login-config?, security-role*, env-entry*, ejb-ref*,  ejb-local-ref*)>
+-->
+
+
+<web-app>
+    <display-name>CamelAsyncTest</display-name>
+    <description>Camel Async Test</description>
+
+    <!-- Override context location for filtering -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            classpath:/applicationContext-amq.xml
+            classpath:/applicationContext-camel.xml
+            classpath:/applicationContext-jobs.xml
+        </param-value>
+    </context-param>
+
+
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+</web-app>

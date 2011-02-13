@@ -1,0 +1,44 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xsi:schemaLocation="
+             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+             http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="jms" class="org.apache.camel.component.jms.JmsComponent">
+        <property name="connectionFactory" ref="amqConnectionFactory"/>
+    </bean>
+
+    <camel:endpoint id="inputq" uri="jms:inputq"/>
+    <camel:endpoint id="expiredMessages" uri="jms:expiredMessages"/>
+
+    <bean id="messageLogger" class="com.atlassian.camelapp.FailingMessageLogger"/>
+    <bean id="expiredMessageLogger" class="com.atlassian.camelapp.ExpiredMessageLogger"/>
+
+
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring" >
+
+        <errorHandler id="retryErrorHandler" type="DeadLetterChannel" deadLetterUri="jms:expiredMessages">
+            <redeliveryPolicy maximumRedeliveries="3" redeliveryDelay="10000" asyncDelayedRedelivery="true" logStackTrace="false" logHandled="true" />
+        </errorHandler>
+
+        <onException >
+            <exception>com.atlassian.camelapp.PermanentFailureException</exception>
+            <redeliveryPolicy maximumRedeliveries="0"/>
+            <handled><constant>true</constant></handled>
+        </onException>
+
+        <route id="inputroute" errorHandlerRef="retryErrorHandler">
+            <from ref="inputq"/>
+            <bean ref="messageLogger"/>
+        </route>
+
+        <route id="expiredRoute">
+            <from ref="expiredMessages"/>
+            <bean ref="expiredMessageLogger"/>
+        </route>
+
+    </camelContext>
+
+
+</beans>
