@@ -17,8 +17,6 @@ public class InjectingJob
     Integer count = 1;
 
     public void doIt() {
-        if (count > 15)
-            return;
 
         log.info("Doing injection of "+count);
 
