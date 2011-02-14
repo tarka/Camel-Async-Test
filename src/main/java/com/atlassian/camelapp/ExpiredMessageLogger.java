@@ -16,6 +16,6 @@ public class ExpiredMessageLogger
 
     @Handler
     public void handleMsg(@Body BaseMessage msg, @Header(Exchange.REDELIVERY_COUNTER) Integer retries) {
-        log.info("Received an expired message after "+retries+" attempts: "+msg);
+        log.info("Received an expired message after "+ (retries == null ? 0 : retries) +" retries: "+msg);
     }
 }
