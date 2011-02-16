@@ -16,21 +16,42 @@
     <bean id="expiredMessageLogger" class="com.atlassian.camelapp.ExpiredMessageLogger"/>
 
 
-    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring" >
+    <camelContext id="camel" trace="true" xmlns="http://camel.apache.org/schema/spring" >
 
-        <errorHandler id="retryErrorHandler" type="DeadLetterChannel" deadLetterUri="jms:expiredMessages">
-            <redeliveryPolicy maximumRedeliveries="3" redeliveryDelay="10000" asyncDelayedRedelivery="true" logStackTrace="false" logHandled="true" />
+        <errorHandler id="defaultErrorHandler" type="DefaultErrorHandler" deadLetterUri="jms:expiredMessages">
+            <redeliveryPolicy maximumRedeliveries="0" logStackTrace="false" logHandled="true" />
+        </errorHandler>
+
+        <errorHandler id="inputqRetryErrorHandler" type="DeadLetterChannel" deadLetterUri="jms:inputqRetries">
+            <redeliveryPolicy maximumRedeliveries="0" logStackTrace="false" logHandled="true" />
         </errorHandler>
 
         <onException >
             <exception>com.atlassian.camelapp.PermanentFailureException</exception>
             <redeliveryPolicy maximumRedeliveries="0"/>
             <handled><constant>true</constant></handled>
+            <to ref="expiredMessages"/>
         </onException>
 
-        <route id="inputroute" errorHandlerRef="retryErrorHandler">
+
+        <route id="inputroute" errorHandlerRef="inputqRetryErrorHandler">
             <from ref="inputq"/>
             <bean ref="messageLogger"/>
+        </route>
+        <route id="inputrouteRetries">
+            <from uri="jms:inputqRetries"/>
+            <choice>
+                <when>
+                    <xpath>$com.atlassian.hams.attempts >= 50</xpath>
+                    <to ref="expiredMessages"/>
+                </when>
+                <otherwise>
+                    <delay>
+                        <constant>5000</constant>
+                    </delay>
+                    <to ref="inputq"/>
+                </otherwise>
+            </choice>
         </route>
 
         <route id="expiredRoute">

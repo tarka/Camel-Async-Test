@@ -12,24 +12,24 @@
                            http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd
                            http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <bean id="amqDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-        <property name="url" value="jdbc:hsqldb:mem:QueuedJmsJobIntTest"/>
-        <property name="username" value="sa"/>
-        <property name="password" value=""/>
-    </bean>
+    <!--<bean id="amqDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">-->
+        <!--<property name="driverClassName" value="org.hsqldb.jdbcDriver"/>-->
+        <!--<property name="url" value="jdbc:hsqldb:mem:QueuedJmsJobIntTest"/>-->
+        <!--<property name="username" value="sa"/>-->
+        <!--<property name="password" value=""/>-->
+    <!--</bean>-->
 
-    <amq:broker id="activeMqBroker" useJmx="false" persistent="true">
+    <!--<amq:broker id="activeMqBroker" useJmx="false" persistent="true">-->
 
-        <amq:persistenceAdapter>
-            <amq:jdbcPersistenceAdapter dataSource="#amqDataSource" useDatabaseLock="false"/>
-        </amq:persistenceAdapter>
+        <!--<amq:persistenceAdapter>-->
+            <!--<amq:jdbcPersistenceAdapter dataSource="#amqDataSource" useDatabaseLock="false"/>-->
+        <!--</amq:persistenceAdapter>-->
 
-        <amq:transportConnectors>
-            <amq:transportConnector uri="tcp://localhost:61616" />
-        </amq:transportConnectors>
+        <!--<amq:transportConnectors>-->
+            <!--<amq:transportConnector uri="tcp://localhost:61616" />-->
+        <!--</amq:transportConnectors>-->
 
-    </amq:broker>
+    <!--</amq:broker>-->
 
     <bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
         <property name="brokerURL" value="tcp://localhost:61616"/>
