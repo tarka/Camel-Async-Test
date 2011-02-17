@@ -5,25 +5,22 @@
              http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
              http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <bean id="jms" class="org.apache.camel.component.jms.JmsComponent">
+    <bean id="amq" class="org.apache.camel.component.jms.JmsComponent">
         <property name="connectionFactory" ref="amqConnectionFactory"/>
     </bean>
 
-    <camel:endpoint id="inputq" uri="jms:inputq"/>
-    <camel:endpoint id="expiredMessages" uri="jms:expiredMessages"/>
+    <camel:endpoint id="inputq" uri="amq:inputq"/>
+    <camel:endpoint id="expiredMessages" uri="amq:expiredMessages"/>
 
     <bean id="messageLogger" class="com.atlassian.camelapp.FailingMessageLogger"/>
     <bean id="expiredMessageLogger" class="com.atlassian.camelapp.ExpiredMessageLogger"/>
 
-    <bean id="fiveSecondDelayTagger" class="com.atlassian.camelapp.AMQDelayTagger">
-        <property name="delaySeconds" value="5"/>
-    </bean>
     <bean id="retryTagger" class="com.atlassian.camelapp.MessageRetryTagger"/>
 
 
     <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/spring" >
 
-        <errorHandler id="defaultErrorHandler" type="DefaultErrorHandler" deadLetterUri="jms:expiredMessages" >
+        <errorHandler id="defaultErrorHandler" type="DefaultErrorHandler" deadLetterUri="amq:expiredMessages" >
             <redeliveryPolicy maximumRedeliveries="0" logStackTrace="false" logHandled="true" />
         </errorHandler>
 
@@ -54,8 +51,8 @@
                         <to ref="expiredMessages"/>
                     </when>
                     <otherwise>
-                        <bean ref="fiveSecondDelayTagger"/>
-                        <to uri="jms:inputq"/>
+                        <setHeader headerName="AMQ_SCHEDULED_DELAY"><constant>5000</constant></setHeader>
+                        <to ref="inputq"/>
                     </otherwise>
                 </choice>
 
