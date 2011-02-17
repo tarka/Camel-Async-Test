@@ -15,26 +15,19 @@ public class FailingMessageLogger
 
     @Handler
     public void handleMsg(@Body BaseMessage msg,
-                          @Headers Map headers)
+                          @Header(MessageRetryTagger.ATTEMPT_HEADER) Integer attempts)
     {
-        log.info("Received: "+msg);
+        log.info("HANDLER Received delivery attempt "+(attempts == null ? 1 : attempts+1)+": "+msg);
 
-        Integer attempts = (Integer)headers.get("com.atlassian.hams.attempts");
-        if (attempts == null)
-            attempts = 0;
+        if (msg.getValue() == 5) {
+            log.warn("Throwing permanent-failure exception");
+            throw new PermanentFailureException();
 
-        attempts++;
-        log.warn("This is redelivery attempt "+attempts);
-        headers.put("com.atlassian.hams.attempts", attempts);
-
-
-//        if (msg.getValue() == 5) {
-//            log.warn("Throwing permanent-failure exception");
-//            throw new PermanentFailureException();
-//        } else
-        if (msg.getValue() >= 10) {
+        } else if (msg.getValue() == 10) {
             log.warn("Throwing temporary-failure exception");
             throw new TemporaryFailureException();
+        } else {
+            log.info("Delivered");
         }
     }
 }
